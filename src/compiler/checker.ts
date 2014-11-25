@@ -7658,8 +7658,6 @@ module ts {
 
                        return checkIfStatementContainsBreakOrReturn(<IfStatement>node);
                     break;
-                    case SyntaxKind.thenStatement
-                    case SyntaxKind.elseStatement
                     case SyntaxKind.DoStatement:
                     case SyntaxKind.WhileStatement:
                     case SyntaxKind.ForStatement:
