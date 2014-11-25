@@ -7642,7 +7642,57 @@ module ts {
                     }
                 }
                 checkBlock(clause);
+                checkCaseOrDefaultClause(clause);
             });
+        }
+
+        function checkCaseOrDefaultClause(node: CaseOrDefaultClause){
+            checkCaseOrDefaultClauseContainsBreakOrReturn(node);
+        }
+        function checkCaseOrDefaultClauseContainsBreakOrReturn (node: CaseOrDefaultClause){
+            
+
+            function checkStatementContainsBreakOrReturn(node: Statement):boolean {
+                switch(node.kind){
+                    case SyntaxKind.IfStatement:
+
+                       return checkIfStatementContainsBreakOrReturn(<IfStatement>node);
+                    break;
+                    case SyntaxKind.thenStatement
+                    case SyntaxKind.elseStatement
+                    case SyntaxKind.DoStatement:
+                    case SyntaxKind.WhileStatement:
+                    case SyntaxKind.ForStatement:
+                    case SyntaxKind.ForInStatement:
+                    case SyntaxKind.TryStatement:
+                    case SyntaxKind.Block:
+                    case SyntaxKind.TryBlock:
+                    case SyntaxKind.CatchBlock:
+                    case SyntaxKind.FinallyBlock:
+                        return forEachChild(node, checkStatementContainsBreakOrReturn);
+                        break;
+                    case SyntaxKind.BreakStatement:
+                    case SyntaxKind.ReturnStatement:
+                        return true;
+                }
+            }
+            function checkIfStatementContainsBreakOrReturn(node: IfStatement){
+                 return (forEachChild(node.thenStatement, checkStatementContainsBreakOrReturn)
+                        &&  forEachChild(node.elseStatement, checkStatementContainsBreakOrReturn));
+            }
+
+            var found : boolean = false;
+            var comments :string [] = [];
+            var len :number = 0;
+            
+            for (var i = 0, len = node.statements.length; i < len; i++) {
+                if (found = checkStatementContainsBreakOrReturn(node.statements[i]))
+                    break;
+            }
+
+            if (!found){
+                //getTrailingCommentRanges(getSourceFileOfNode(node).text,(<Node>node.statements[len-1]).pos);
+            }
         }
 
         function checkLabeledStatement(node: LabeledStatement) {
