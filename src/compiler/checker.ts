@@ -7680,16 +7680,29 @@ module ts {
             }
 
             var found : boolean = false;
-            var comments :string [] = [];
+            var comments :CommentRange [] = [];
             var len :number = 0;
             
             for (var i = 0, len = node.statements.length; i < len; i++) {
                 if (found = checkStatementContainsBreakOrReturn(node.statements[i]))
                     break;
             }
+            var sourceFileOfNode = ts.getSourceFileOfNode(node);
 
             if (!found){
-                //getTrailingCommentRanges(getSourceFileOfNode(node).text,(<Node>node.statements[len-1]).pos);
+                comments = ts.getLeadingCommentRanges(sourceFileOfNode.text,node.end);
+                var foundComment:boolean = false;
+                forEach(comments, comment => {
+                    var c = sourceFileOfNode.text.substring(comment.pos, comment.end);
+                    if (foundComment = (c == "/* fall through */")){
+                        return ;
+                    }
+               
+                });
+
+                if (!foundComment){
+                    // Show Error
+                }
             }
         }
 

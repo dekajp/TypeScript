@@ -1,4 +1,3 @@
-/*dd*/
 function R1(index) {
     switch (index) {
         case 0:
@@ -14,10 +13,10 @@ function R1(index) {
         case 3:
             var strings = ['Hello', '98052', '101'];
             for (var name in strings) {
+                var k = 'k';
             }
-        case 4: {
+        case 4:
             return 'b';
-        }
         case 5:
             if (true) {
                 return 'a';

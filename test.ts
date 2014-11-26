@@ -1,5 +1,3 @@
-
-/*dd*/
 function R1(index: number) {
     switch (index) {
         case 0:
@@ -16,12 +14,11 @@ function R1(index: number) {
         case 3:
             var strings = ['Hello', '98052', '101'];
             for(var name in strings ){
-                //
+                var k :any = 'k';
             }
             /* fall through */
-        case 4: {
+        case 4:
             return 'b';
-        }
     case 5:
         if (true){
             return 'a';
@@ -39,6 +36,7 @@ function R1(index: number) {
                 var c :string = 'c'
             }
         }
+        /* fall through */
     case 7:
         if (true){
             return 'a';

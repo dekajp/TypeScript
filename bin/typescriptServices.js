@@ -15502,7 +15502,18 @@ var ts;
                 if (found = checkStatementContainsBreakOrReturn(node.statements[i]))
                     break;
             }
+            var sourceFileOfNode = ts.getSourceFileOfNode(node);
             if (!found) {
+                comments = ts.getLeadingCommentRanges(sourceFileOfNode.text, node.end);
+                var foundComment = false;
+                ts.forEach(comments, function (comment) {
+                    var c = sourceFileOfNode.text.substring(comment.pos, comment.end);
+                    if (foundComment = (c == "/* fall through */")) {
+                        return;
+                    }
+                });
+                if (!foundComment) {
+                }
             }
         }
         function checkLabeledStatement(node) {
