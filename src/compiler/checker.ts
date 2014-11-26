@@ -7642,7 +7642,100 @@ module ts {
                     }
                 }
                 checkBlock(clause);
+                checkCaseOrDefaultClause(clause);
             });
+        }
+
+        function checkCaseOrDefaultClause(node: CaseOrDefaultClause){
+            checkCaseOrDefaultClauseContainsBreakOrReturn(node);
+        }
+
+        function checkCaseOrDefaultClauseContainsBreakOrReturn (node: CaseOrDefaultClause){
+
+            function checkStatementContainsBreakOrReturn (node: Statement):boolean {
+                switch(node.kind){
+                    case SyntaxKind.BreakStatement:
+                    case SyntaxKind.ReturnStatement:
+                        return true;
+                    default:
+                        return false;
+                }
+            }
+
+            function checkNodeContainsBreakOrReturn(node: Statement):boolean {
+                switch(node.kind){
+                    case SyntaxKind.IfStatement:
+                        return checkIfStatementIsFallThrough(<IfStatement>node);
+                    case SyntaxKind.TryStatement:
+                        return checkTryStatementIsFallThrough(<TryStatement>node);
+                    case SyntaxKind.Block:
+                        return forEachChild(node, checkNodeContainsBreakOrReturn);
+                    case SyntaxKind.DoStatement:
+                        return checkDoStatementContainsBreakOrReturn(node);
+                   default:
+                        return checkStatementContainsBreakOrReturn(node);
+                }
+            }
+
+            function checkDoStatementContainsBreakOrReturn (node: Statement){
+                switch(node.kind){
+                    case SyntaxKind.DoStatement:
+                        return forEachChild(node, checkNodeContainsBreakOrReturn);
+                }
+            }
+
+            function checkIfStatementIsFallThrough(node: IfStatement){
+                // thenStatement or elseStatement can contain  for/while conditional
+                // statements but there is no way we can verify each conditional statement will
+                // be executed , so even if those conditional statement body returns/break
+                // this then/else must contain break or return
+                // Only Exception is Do-While , this execute once . So a do-while return inside a if-then/else
+                // body should not fall through 
+                if  ( (  forEachChild(node.thenStatement, checkDoStatementContainsBreakOrReturn) || forEachChild(node.thenStatement, checkStatementContainsBreakOrReturn))
+                    && ( forEachChild(node.elseStatement, checkDoStatementContainsBreakOrReturn) || forEachChild(node.elseStatement, checkStatementContainsBreakOrReturn)) 
+                    ){
+                    return true;
+                }
+
+            }
+
+            function checkTryStatementIsFallThrough(node: TryStatement){
+                // Try-Catch-Finally block is very similar to ifStatement
+                // except that either try-catch or finally must break/return
+                if ( (( forEachChild(node.tryBlock, checkStatementContainsBreakOrReturn)   || forEachChild(node.tryBlock, checkDoStatementContainsBreakOrReturn))
+                      && ( forEachChild(node.catchBlock, checkStatementContainsBreakOrReturn) || forEachChild(node.catchBlock, checkDoStatementContainsBreakOrReturn)))
+                    || ( forEachChild(node.finallyBlock, checkStatementContainsBreakOrReturn) || forEachChild(node.finallyBlock, checkDoStatementContainsBreakOrReturn))
+                    ){
+                    return true;
+                }
+            }
+
+            function checkCommentsContainsFallThrough(comments:CommentRange []){
+                var foundFallThroughComment:boolean = false;
+                forEach(comments, comment => {
+                    var c = sourceFileOfNode.text.substring(comment.pos, comment.end);
+                    if (foundFallThroughComment = (c == "/* fall through */")){
+                        return foundFallThroughComment;
+                    }
+                });
+            }
+
+            var foundBreakOrReturn : boolean = false;
+            var comments :CommentRange [] = [];
+            var len :number = 0;
+            
+            for (var i = 0, len = node.statements.length; i < len; i++) {
+                if (foundBreakOrReturn = checkNodeContainsBreakOrReturn(node.statements[i]))
+                    break;
+            }
+
+            var sourceFileOfNode = ts.getSourceFileOfNode(node);
+            if (!foundBreakOrReturn 
+                && !checkCommentsContainsFallThrough(ts.getLeadingCommentRanges(sourceFileOfNode.text,node.end))){
+                // TODO : Question - by implemnting this error compiler will give error in existing 
+                // code and how should we handle --removeComments CommandLine flag ?
+                // error(node, Diagnostics.Missing_comments_Slash_Asterisk_fall_through_Asterisk_Slash);
+            }
         }
 
         function checkLabeledStatement(node: LabeledStatement) {

@@ -275,6 +275,7 @@ module ts {
         Type_alias_0_circularly_references_itself: { code: 2456, category: DiagnosticCategory.Error, key: "Type alias '{0}' circularly references itself." },
         Type_alias_name_cannot_be_0: { code: 2457, category: DiagnosticCategory.Error, key: "Type alias name cannot be '{0}'" },
         An_AMD_module_cannot_have_multiple_name_assignments: { code: 2458, category: DiagnosticCategory.Error, key: "An AMD module cannot have multiple name assignments." },
+        Missing_comments_Slash_Asterisk_fall_through_Asterisk_Slash: { code: 2459, category: DiagnosticCategory.Error, key: "Missing comments /* fall through */" },
         Import_declaration_0_is_using_private_name_1: { code: 4000, category: DiagnosticCategory.Error, key: "Import declaration '{0}' is using private name '{1}'." },
         Type_parameter_0_of_exported_class_has_or_is_using_private_name_1: { code: 4002, category: DiagnosticCategory.Error, key: "Type parameter '{0}' of exported class has or is using private name '{1}'." },
         Type_parameter_0_of_exported_interface_has_or_is_using_private_name_1: { code: 4004, category: DiagnosticCategory.Error, key: "Type parameter '{0}' of exported interface has or is using private name '{1}'." },
