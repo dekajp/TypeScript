@@ -38,8 +38,8 @@ function R1(index: number) {
         }
         /* fall through */
     case 7:
-        if (true){
-            return 'a';
+        do{
+            break;    
         }
     default:
       return 'c';
